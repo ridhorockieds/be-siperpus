@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\api\BookController;
+use App\Http\Controllers\api\PublisherController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -12,4 +13,10 @@ Route::prefix('books')->group(function () {
     Route::get('/', [BookController::class, 'index']);
     Route::post('/', [BookController::class, 'store']);
     Route::delete('/{book}', [BookController::class, 'destroy']);
+});
+
+Route::prefix('publishers')->group(function () {
+    Route::get('/', [PublisherController::class, 'index']);
+    Route::post('/', [PublisherController::class, 'store']);
+    Route::delete('/{publisher}', [PublisherController::class, 'destroy']);
 });
