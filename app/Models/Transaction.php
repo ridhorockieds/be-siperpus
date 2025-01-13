@@ -13,4 +13,14 @@ class Transaction extends Model
         'publisher_id',
         'total',
     ];
+
+    public function book()
+    {
+        return $this->belongsTo(Book::class);
+    }
+
+    public function publisher()
+    {
+        return $this->belongsTo(Publisher::class);
+    }
 }

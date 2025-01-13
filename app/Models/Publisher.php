@@ -13,4 +13,9 @@ class Publisher extends Model
         'address',
         'phone',
     ];
+
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class);
+    }
 }
