@@ -19,7 +19,8 @@ class BookController extends Controller
         if ($books->isEmpty()) {
             return response()->json([
                 'success' => false,
-                'message' => 'No books found.'
+                'message' => 'Books not found.',
+                'data' => []
             ], 200);
         }
         
