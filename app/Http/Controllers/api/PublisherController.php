@@ -19,7 +19,8 @@ class PublisherController extends Controller
         if ($publishers->isEmpty()) {
             return response()->json([
                 'success' => false,
-                'message' => 'No publisher found.'
+                'message' => 'Publishers not found.',
+                'data' => []
             ], 200);
         }
         
