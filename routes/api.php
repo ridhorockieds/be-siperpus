@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\api\BookController;
+use App\Http\Controllers\api\TransactionController;
 use App\Http\Controllers\api\PublisherController;
 
 Route::get('/user', function (Request $request) {
@@ -19,4 +20,9 @@ Route::prefix('publishers')->group(function () {
     Route::get('/', [PublisherController::class, 'index']);
     Route::post('/', [PublisherController::class, 'store']);
     Route::delete('/{publisher}', [PublisherController::class, 'destroy']);
+});
+
+Route::prefix('transactions')->group(function () {
+    Route::get('/', [TransactionController::class, 'index']);
+    Route::post('/', [TransactionController::class, 'store']);
 });
