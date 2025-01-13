@@ -20,7 +20,7 @@ class TransactionController extends Controller
      */
     public function index()
     {
-        $transactions = Transaction::all();
+        $transactions = Transaction::with(['book', 'publisher'])->get();
 
         if($transactions) {
             return response()->json([
@@ -61,6 +61,32 @@ class TransactionController extends Controller
         return response()->json([
             'success' => false,
             'message' => 'Failed to create transaction.',
+        ], 200);
+    }
+
+    /**
+     * Remove the specified transaction from storage.
+     *
+     * Looks up a transaction by the given ID and deletes it.
+     * Returns a JSON response indicating success or failure.
+     * 
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function destroy($id) {
+        $transaction = Transaction::find($id);
+
+        if($transaction) {
+            $transaction->delete();
+            return response()->json([
+                'success' => true,
+                'message' => 'Successfully deleted transaction.',
+            ], 200);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Transaction not found.',
         ], 200);
     }
 }

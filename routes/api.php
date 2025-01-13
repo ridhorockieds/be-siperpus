@@ -25,4 +25,5 @@ Route::prefix('publishers')->group(function () {
 Route::prefix('transactions')->group(function () {
     Route::get('/', [TransactionController::class, 'index']);
     Route::post('/', [TransactionController::class, 'store']);
+    Route::delete('/{transaction}', [TransactionController::class, 'destroy']);
 });
