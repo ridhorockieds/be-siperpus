@@ -5,6 +5,7 @@ namespace App\Http\Controllers\api;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\TransactionResource;
 
 class TransactionController extends Controller
 {
@@ -20,20 +21,12 @@ class TransactionController extends Controller
      */
     public function index()
     {
-        $transactions = Transaction::with(['book', 'publisher'])->get();
-
-        if($transactions) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Successfully fetched transactions.',
-                'data' => $transactions
-            ], 200);
-        }
-
+        $transactions = TransactionResource::collection(Transaction::with(['book', 'publisher'])->get());
+    
         return response()->json([
-            'success' => false,
-            'message' => 'Transaction not found.',
-            'data' => []
+            'success'   => $transactions->isNotEmpty(),
+            'message'   => $transactions->isNotEmpty() ? 'Successfully fetched transactions.' : 'Transaction not found.',
+            'data'      => $transactions
         ], 200);
     }
 
@@ -48,20 +41,19 @@ class TransactionController extends Controller
      */
     public function store(Request $request)
     {
-        $transaction = Transaction::create($request->all());
-
-        if($transaction) {
+        try {
+            $transaction = Transaction::create($request->all());
             return response()->json([
                 'success' => true,
                 'message' => 'Successfully created transaction.',
-                'data' => $transaction
-            ], 200);
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success'   => false,
+                'message'   => 'Failed to create transaction.',
+                'error'     => $e->getMessage()
+            ], 422);
         }
-
-        return response()->json([
-            'success' => false,
-            'message' => 'Failed to create transaction.',
-        ], 200);
     }
 
     /**
@@ -73,20 +65,21 @@ class TransactionController extends Controller
      * @param int $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy($id) {
+    public function destroy($id)
+    {
         $transaction = Transaction::find($id);
-
-        if($transaction) {
-            $transaction->delete();
+    
+        if (!$transaction) {
             return response()->json([
-                'success' => true,
-                'message' => 'Successfully deleted transaction.',
-            ], 200);
+                'success' => false,
+                'message' => 'Transaction not found.',
+            ], 404);
         }
-
+    
+        $transaction->delete();
         return response()->json([
-            'success' => false,
-            'message' => 'Transaction not found.',
+            'success' => true,
+            'message' => 'Successfully deleted transaction.',
         ], 200);
     }
 }
