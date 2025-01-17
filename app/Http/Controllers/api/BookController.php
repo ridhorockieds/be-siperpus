@@ -18,8 +18,8 @@ class BookController extends Controller
         $books = BookResource::collection(Book::all());
         
         return response()->json([
-            'success' => true,
-            'message' => 'Successfully fetched books.',
+            'success' => $books->isNotEmpty(),
+            'message' => $books->isNotEmpty() ? 'Successfully fetched book.' : 'Book not found.',
             'data' => $books
         ], 200);
     }
@@ -33,28 +33,21 @@ class BookController extends Controller
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function store(Request $request) {
-        $validated = $request->validate([
-            'title' => 'required',
-            'price' => ['required', 'numeric'],
-            'stock' => ['required', 'numeric']
-        ]);
-
+    public function store(Request $request)
+    {
         try {
-            $book = Book::create($validated);
-
+            $book = Book::create($request->all());
             return response()->json([
                 'success' => true,
-                'data' => $book,
-                'message' => 'Book created successfully.'
-            ], 200);
-        } catch (\Throwable $th) {
-            info($th);
-
+                'message' => 'Successfully created book.',
+                'data' => $book
+            ], 201);
+        } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $th->getMessage()
-            ], 500);
+                'message' => 'Failed to create book.',
+                'error' => $e->getMessage()
+            ], 422);
         }
     }
 
@@ -64,21 +57,21 @@ class BookController extends Controller
      * @param \App\Models\Book $book
      * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy(Book $book) {
-        try {
-            $book->delete();
+    public function destroy($id)
+    {
+        $book = Book::find($id);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Book deleted successfully.'
-            ], 200);
-        } catch (\Throwable $th) {
-            info($th);
-
+        if (!$book) {
             return response()->json([
                 'success' => false,
-                'message' => $th->getMessage()
-            ], 500);
+                'message' => 'Book not found.',
+            ], 404);
         }
+
+        $book->delete();
+        return response()->json([
+            'success' => true,
+            'message' => 'Successfully deleted book.',
+        ], 200);
     }
 }
