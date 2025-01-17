@@ -5,6 +5,7 @@ namespace App\Http\Controllers\api;
 use App\Models\Book;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\BookResource;
 
 class BookController extends Controller
 {
@@ -14,18 +15,11 @@ class BookController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     public function index() {
-        $books = Book::all();
-        
-        if ($books->isEmpty()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Books not found.',
-                'data' => []
-            ], 200);
-        }
+        $books = BookResource::collection(Book::all());
         
         return response()->json([
             'success' => true,
+            'message' => 'Successfully fetched books.',
             'data' => $books
         ], 200);
     }
