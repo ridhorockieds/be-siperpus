@@ -5,6 +5,7 @@ namespace App\Http\Controllers\api;
 use App\Models\Publisher;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\PublisherResource;
 
 class PublisherController extends Controller
 {
@@ -14,7 +15,7 @@ class PublisherController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     public function index() {
-        $publishers = Publisher::all();
+        $publishers = PublisherResource::collection(Publisher::all());
         
         if ($publishers->isEmpty()) {
             return response()->json([
@@ -26,6 +27,7 @@ class PublisherController extends Controller
         
         return response()->json([
             'success' => true,
+            'message' => 'Successfully fetched publishers.',
             'data' => $publishers
         ], 200);
     }
