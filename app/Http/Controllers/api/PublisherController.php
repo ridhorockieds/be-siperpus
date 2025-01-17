@@ -17,18 +17,10 @@ class PublisherController extends Controller
     public function index() {
         $publishers = PublisherResource::collection(Publisher::all());
         
-        if ($publishers->isEmpty()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Publishers not found.',
-                'data' => []
-            ], 200);
-        }
-        
         return response()->json([
-            'success' => true,
-            'message' => 'Successfully fetched publishers.',
-            'data' => $publishers
+            'success'   => $publishers->isNotEmpty(),
+            'message'   => $publishers->isNotEmpty() ? 'Successfully fetched publishers.' : 'Publishers not found.',
+            'data'      => $publishers
         ], 200);
     }
 
@@ -42,27 +34,20 @@ class PublisherController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
      public function store(Request $request) {
-        $validated = $request->validate([
-            'name' => 'required',
-            'address' => 'required',
-            'phone' => 'required',
-        ]);
-
         try {
-            $publisher = Publisher::create($validated);
-            
-            return response()->json([
-                'success' => true,
-                'data' => $publisher,
-                'message' => 'Publisher created successfully.'
-            ], 200);
-        } catch (\Throwable $th) {
-            info($th);
+            $publisher = Publisher::create($request->all());
 
             return response()->json([
-                'success' => false,
-                'message' => $th->getMessage()
-            ], 500);
+                'success'   => true,
+                'message'   => 'Successfully created publisher.',
+                'data'      => $publisher
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success'   => false,
+                'message'   => 'Failed to create publisher.',
+                'error'     => $e->getMessage()
+            ], 422);
         }
     }
 
@@ -72,21 +57,21 @@ class PublisherController extends Controller
      * @param \App\Models\Publisher $publisher
      * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy(Publisher $publisher) {
-        try {
-            $publisher->delete();
-            
-            return response()->json([
-                'success' => true,
-                'message' => 'Publisher deleted successfully.'
-            ], 200);
-        } catch (\Throwable $th) {
-            info($th);
+    public function destroy($id)
+    {
+        $publisher = Publisher::find($id);
 
+        if (!$publisher) {
             return response()->json([
                 'success' => false,
-                'message' => $th->getMessage()
-            ], 500);
+                'message' => 'Publisher not found.',
+            ], 404);
         }
+
+        $publisher->delete();
+        return response()->json([
+            'success' => true,
+            'message' => 'Successfully deleted publisher.',
+        ], 200);
     }
 }
